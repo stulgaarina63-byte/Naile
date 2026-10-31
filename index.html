@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="ru" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NAILÉ — Luxury Nail Studio & Online Booking</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        nude: {
+                            50: '#FAF6F4',
+                            100: '#F5ECE8',
+                            200: '#EBDCD5',
+                            300: '#DFC8BC',
+                            400: '#CDAA99',
+                            500: '#B88A75',
+                            600: '#9E6E5A',
+                            700: '#7F5241',
+                            800: '#5F3C2F',
+                            900: '#3D241C',
+                        },
+                        blush: {
+                            50: '#FFF0F3',
+                            100: '#FFE1E7',
+                            200: '#FFC8D3',
+                            500: '#E295A3',
+                            800: '#8A4250'
+                        },
+                        charcoal: '#222222',
+                    },
+                    fontFamily: {
+                        serif: ['Cormorant Garamond', 'serif'],
+                        sans: ['Montserrat', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #FAF6F4;
+            color: #222222;
+        }
+        .font-serif-title {
+            font-family: 'Cormorant Garamond', serif;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(223, 200, 188, 0.4);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            height: 6px;
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #F5ECE8;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #CDAA99;
+            border-radius: 9999px;
+        }
+        /* Занятое окошко: зачёркнуто и недоступно */
+        .slot-taken {
+            text-decoration: line-through;
+            opacity: .45;
+            cursor: not-allowed;
+            background: #F5ECE8 !important;
+            color: #7F5241 !important;
+        }
+        /* Completely hide Netlify badge and overlays */
+        [class*="netlify-badge"],
+        iframe[src*="netlify"],
+        div[id*="netlify"],
+        .netlify-badge {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
+    </style>
+</head>
+<body class="min-h-screen pb-36 md:pb-12 text-slate-800 antialiased selection:bg-nude-200 selection:text-nude-900">
+
+    <!-- Статус базы (виден только если что-то не так) -->
+    <div id="dbBanner" class="hidden text-center text-[11px] py-1.5 px-3 font-medium"></div>
+
+    <!-- Top Announcement Bar -->
+    <div class="bg-nude-900 text-nude-100 text-xs py-2 px-4 text-center font-light tracking-widest flex items-center justify-center gap-2">
+        <i class="fa-solid fa-sparkles text-amber-300 text-[10px]"></i>
+        <span>ПОЛУЧИТЕ СКИДКУ -10% НА ПЕРВОЕ ПОСЕЩЕНИЕ СТУДИИ</span>
+        <i class="fa-solid fa-sparkles text-amber-300 text-[10px]"></i>
+    </div>
+
+    <!-- Header Navigation -->
+    <header class="sticky top-0 z-40 bg-nude-50/90 backdrop-blur-md border-b border-nude-200/60 transition-all">
+        <div class="max-w-md md:max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
+
+            <div class="flex items-center gap-2">
+                <span class="font-serif-title text-2xl font-semibold tracking-wider text-nude-900">NAILÉ</span>
+                <span class="text-[9px] uppercase tracking-widest px-2 py-0.5 bg-nude-200 text-nude-800 rounded-full font-medium">Studio</span>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <button onclick="openBookingModal()" class="bg-nude-900 hover:bg-nude-800 text-white text-xs font-medium px-4 py-2 rounded-full shadow-md transition-all active:scale-95 flex items-center gap-1.5">
+                    <i class="fa-regular fa-calendar-check text-xs"></i>
+                    <span>Записаться</span>
+                </button>
+                <button onclick="openAdminPasswordModal()" class="px-3 py-2 bg-amber-500 text-white font-bold rounded-xl shadow-md hover:bg-amber-600 transition flex items-center gap-1.5 text-xs" title="Кабинет Мастера">
+                    <i class="fa-solid fa-sliders text-xs"></i> Кабинет
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT WRAPPER -->
+    <main class="max-w-md md:max-w-4xl mx-auto px-4 pt-6 space-y-10">
+
+        <!-- Hero Section -->
+        <section class="relative rounded-3xl overflow-hidden shadow-xl border border-nude-200/50">
+            <div class="absolute inset-0 bg-gradient-to-t from-nude-900/90 via-nude-900/40 to-transparent z-10"></div>
+            <img src="https://images.unsplash.com/photo-1604654894610-df63bc536371?q=80&w=1000&auto=format&fit=crop"
+                 alt="Nail Art Showcase"
+                 class="w-full h-80 md:h-96 object-cover object-center scale-105 transform hover:scale-100 transition duration-700"
+                 onerror="this.src='https://placehold.co/800x600/EBDCD5/3D241C?text=NAILE+Studio'">
+
+            <div class="absolute bottom-0 left-0 right-0 p-6 z-20 text-white space-y-3">
+                <div class="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-xs font-light tracking-wide text-nude-100">
+                    <i class="fa-solid fa-gem text-amber-200 text-[10px]"></i> Премиум уход & Непревзойденный стиль
+                </div>
+                <h1 class="font-serif-title text-3xl md:text-5xl font-medium tracking-tight leading-tight">
+                    Идеальный маникюр, подчеркивающий твою уникальность
+                </h1>
+                <p class="text-xs md:text-sm text-nude-100/90 font-light max-w-lg leading-relaxed">
+                    Чистая обработка, стойкое покрытие и утонченный дизайн. Погрузись в атмосферу заботы и эстетики.
+                </p>
+                <div class="pt-2 flex flex-wrap gap-3">
+                    <button onclick="openBookingModal()" class="bg-nude-100 text-nude-900 hover:bg-white font-medium text-xs px-5 py-3 rounded-xl shadow-lg transition active:scale-95 flex items-center gap-2">
+                        <span>Выбрать услугу и время</span>
+                        <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                    </button>
+                    <a href="#services" class="bg-black/30 hover:bg-black/40 border border-white/30 text-white font-light text-xs px-4 py-3 rounded-xl backdrop-blur-sm transition">
+                        Прайс-лист
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Master Bio / Intro Banner -->
+        <section class="glass-card rounded-2xl p-5 shadow-sm border border-nude-200 flex flex-col md:flex-row items-center gap-5">
+            <div class="relative w-24 h-24 md:w-28 md:h-28 rounded-full overflow-hidden flex-shrink-0 border-2 border-nude-300 shadow-inner">
+                <img src="https://i.imgur.com/Je6iwQ0.jpeg"
+                     alt="Top Nail Master"
+                     class="w-full h-full object-cover"
+                     onerror="this.src='https://placehold.co/200x200/DFC8BC/3D241C?text=Master'">
+                <div class="absolute bottom-0 inset-x-0 bg-nude-900/80 text-white text-[9px] text-center py-0.5 tracking-wider uppercase font-medium">ТОП Мастер</div>
+            </div>
+            <div class="space-y-2 text-center md:text-left flex-1">
+                <div class="flex items-center justify-center md:justify-start gap-2">
+                    <h3 class="font-serif-title text-xl font-bold text-nude-900">Арина — Мастер Ногтевого Сервиса</h3>
+                </div>
+                <p class="text-xs text-slate-600 leading-relaxed font-light">
+                    Опыт работы более 5 лет. Использую только стерильные инструменты (ГП-10), одноразовые расходники и гипоаллергенные премиум материалы.
+                </p>
+                <div class="flex flex-wrap items-center justify-center md:justify-start gap-4 text-xs text-nude-800 font-medium pt-1">
+                    <span class="flex items-center gap-1"><i class="fa-solid fa-shield-halved text-nude-500"></i> 100% Стерильно</span>
+                    <span class="flex items-center gap-1"><i class="fa-solid fa-clock text-nude-500"></i> Быстро & Качественно</span>
+                    <span class="flex items-center gap-1"><i class="fa-solid fa-star text-amber-500"></i> 4.98 Оценка</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Services & Price List Section (карточки рисуются из списка SERVICES в скрипте) -->
+        <section id="services" class="space-y-6">
+            <div class="text-center space-y-1">
+                <span class="text-xs uppercase tracking-widest text-nude-600 font-semibold">Услуги & Стоимость</span>
+                <h2 class="font-serif-title text-3xl font-semibold text-nude-900">Прайс-лист Студии</h2>
+                <p class="text-xs text-slate-500 font-light">Выберите услугу для детального просмотра и онлайн-записи</p>
+            </div>
+
+            <!-- Tab Buttons -->
+            <div class="flex p-1 bg-nude-100 rounded-xl max-w-xs mx-auto border border-nude-200">
+                <button id="tab-manicure" onclick="switchTab('manicure')" class="flex-1 py-2 text-xs font-medium rounded-lg transition-all bg-white text-nude-900 shadow-sm">
+                    Маникюр & Покрытие
+                </button>
+                <button id="tab-extensions" onclick="switchTab('extensions')" class="flex-1 py-2 text-xs font-medium rounded-lg transition-all text-slate-500 hover:text-nude-900">
+                    Наращивание
+                </button>
+            </div>
+
+            <div id="category-manicure" class="space-y-3 transition-all duration-300"></div>
+            <div id="category-extensions" class="space-y-3 hidden transition-all duration-300"></div>
+        </section>
+
+        <!-- Address & Studio Info Footer -->
+        <footer class="bg-nude-900 text-nude-100 rounded-3xl p-6 space-y-6 shadow-lg">
+            <div class="flex flex-col md:flex-row justify-between gap-6 border-b border-nude-800 pb-6">
+                <div class="space-y-2">
+                    <span class="font-serif-title text-2xl font-bold tracking-wider text-amber-100">NAILÉ STUDIO</span>
+                    <p class="text-xs text-nude-300 max-w-xs font-light">
+                        Уютное пространство красоты, где каждый маникюр создается с любовью и вниманием к детали.
+                    </p>
+                </div>
+                <div class="space-y-2 text-xs text-nude-200">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-location-dot text-amber-300 w-4"></i>
+                        <span>с. Новоишимка, Локомотивная 29, салон красоты</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-clock text-amber-300 w-4"></i>
+                        <span>Ежедневно с 09:00 до 20:00</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-phone text-amber-300 w-4"></i>
+                        <span>+7 (708) 496 27 95</span>
+                    </div>
+                </div>
+            </div>
+            <div class="flex flex-col sm:flex-row justify-between items-center text-[11px] text-nude-400 gap-2">
+                <span>© 2026 NAILÉ Studio. Все права защищены.</span>
+                <div class="flex gap-4">
+                    <a href="https://instagram.com/arink1a_s" target="_blank" rel="noopener" class="hover:text-amber-200 transition"><i class="fa-brands fa-instagram text-sm"></i> Instagram</a>
+                    <a href="https://wa.me/77084962795" target="_blank" rel="noopener" class="hover:text-amber-200 transition"><i class="fa-brands fa-whatsapp text-sm"></i> WhatsApp</a>
+                </div>
+            </div>
+        </footer>
+
+    </main>
+
+    <!-- FLOATING BOOKING BUTTON FOR MOBILE -->
+    <div class="fixed bottom-10 inset-x-4 z-40 md:hidden">
+        <button onclick="openBookingModal()" class="w-full bg-nude-900 hover:bg-nude-800 text-white font-medium py-3.5 px-6 rounded-2xl shadow-2xl border border-nude-700/50 flex items-center justify-between active:scale-[0.98] transition">
+            <span class="flex items-center gap-2 text-sm">
+                <i class="fa-solid fa-sparkles text-amber-300"></i> Онлайн запись
+            </span>
+            <span class="text-xs bg-white/20 px-3 py-1 rounded-full font-light">Выбрать время →</span>
+        </button>
+    </div>
+
+    <!-- Всплывающие уведомления -->
+    <div id="toast" class="fixed top-4 inset-x-4 z-[70] pointer-events-none flex justify-center opacity-0 transition-opacity duration-300">
+        <div id="toastText" class="max-w-sm bg-nude-900 text-white text-xs px-4 py-3 rounded-2xl shadow-2xl text-center"></div>
+    </div>
+
+    <!-- ==================== BOOKING MODAL ==================== -->
+    <div id="bookingModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center hidden opacity-0 transition-opacity duration-300 p-0 sm:p-4">
+        <div class="bg-nude-50 w-full max-w-lg rounded-t-3xl sm:rounded-3xl shadow-2xl border border-nude-200 overflow-hidden max-h-[90vh] flex flex-col transform translate-y-full transition-transform duration-300 pb-10 sm:pb-0" id="bookingModalCard">
+
+            <div class="p-4 bg-white border-b border-nude-200 flex justify-between items-center flex-shrink-0">
+                <div>
+                    <h3 class="font-serif-title text-xl font-bold text-nude-900">Запись в NAILÉ</h3>
+                    <p class="text-[11px] text-slate-500 font-light" id="stepIndicator">Шаг 1 из 3: Выбор услуги</p>
+                </div>
+                <button onclick="closeBookingModal()" aria-label="Закрыть" class="w-8 h-8 rounded-full bg-nude-100 text-nude-700 flex items-center justify-center hover:bg-nude-200 transition">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+
+            <div class="p-5 overflow-y-auto custom-scrollbar space-y-5 flex-1">
+                <!-- STEP 1 -->
+                <div id="step-1" class="space-y-4">
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-nude-800">1. Основная услуга</label>
+                    <div id="serviceOptions" class="space-y-2"></div>
+
+                    <!-- Донаращивание ногтей -->
+                    <div id="extraBlock" class="bg-white rounded-xl border border-dashed border-nude-300 p-3 flex items-center justify-between gap-3">
+                        <div class="flex-1">
+                            <p class="text-xs font-medium text-nude-900">Донаращивание ногтей</p>
+                            <p class="text-[10px] text-slate-500 font-light" id="extraHint">+500 ₸ и +10 мин за каждый ноготь</p>
+                        </div>
+                        <div class="flex items-center gap-2 flex-shrink-0">
+                            <button type="button" id="extraMinus" onclick="changeExtra(-1)" aria-label="Меньше" class="w-8 h-8 rounded-full bg-nude-100 text-nude-900 font-bold hover:bg-nude-200 transition disabled:opacity-30">−</button>
+                            <span id="extraCount" class="w-5 text-center text-sm font-bold text-nude-900">0</span>
+                            <button type="button" id="extraPlus" onclick="changeExtra(1)" aria-label="Больше" class="w-8 h-8 rounded-full bg-nude-900 text-white font-bold hover:bg-nude-800 transition disabled:opacity-30">+</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 2 -->
+                <div id="step-2" class="space-y-4 hidden">
+                    <div id="durationNote" class="text-[11px] text-nude-800 bg-nude-100 border border-nude-200 rounded-xl px-3 py-2"></div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-nude-800">Выберите дату записи</label>
+                    <div id="dateList" class="flex gap-2 overflow-x-auto pb-2 custom-scrollbar"></div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-nude-800 pt-2">Время начала</label>
+                    <div id="timeSlots" class="grid grid-cols-3 gap-2"></div>
+                    <p id="noSlotsMsg" class="text-xs text-slate-400 italic text-center py-4 hidden">На выбранную дату нет окошек.</p>
+                    <p id="slotsLegend" class="text-[10px] text-slate-400 leading-relaxed hidden">Зачёркнутые окошки уже заняты или не вмещают выбранную процедуру целиком. Выберите другую дату или более короткую услугу.</p>
+                </div>
+
+                <!-- STEP 3 -->
+                <div id="step-3" class="space-y-4 hidden">
+                    <div class="bg-white p-4 rounded-2xl border border-nude-200 space-y-2 text-xs">
+                        <p class="flex justify-between gap-3"><span>Услуга:</span> <strong id="summaryService" class="text-nude-900 text-right">-</strong></p>
+                        <p id="summaryExtraRow" class="flex justify-between gap-3 hidden"><span>Донаращивание:</span> <strong id="summaryExtra" class="text-nude-900 text-right">-</strong></p>
+                        <p class="flex justify-between gap-3"><span>Дата:</span> <strong id="summaryDate" class="text-nude-900 text-right">-</strong></p>
+                        <p class="flex justify-between gap-3"><span>Время:</span> <strong id="summaryTime" class="text-nude-900 text-right">-</strong></p>
+                        <div class="border-t pt-2 flex justify-between font-bold text-sm text-nude-900">
+                            <span>К оплате:</span>
+                            <span id="summaryTotal" class="text-nude-800">0 ₸</span>
+                        </div>
+                    </div>
+                    <form id="clientForm" class="space-y-3" onsubmit="event.preventDefault(); submitBooking();">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-700 mb-1" for="clientName">Ваше Имя *</label>
+                            <input type="text" id="clientName" required maxlength="60" autocomplete="name" placeholder="Например: Алина" class="w-full text-xs p-3 rounded-xl border border-nude-300 bg-white">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-700 mb-1" for="clientPhone">Номер телефона *</label>
+                            <input type="tel" id="clientPhone" required maxlength="25" autocomplete="tel" placeholder="+7 (707) 000-00-00" class="w-full text-xs p-3 rounded-xl border border-nude-300 bg-white">
+                        </div>
+                    </form>
+                </div>
+
+                <!-- STEP 4: успех -->
+                <div id="step-4" class="space-y-4 hidden text-center">
+                    <div class="w-14 h-14 mx-auto rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-2xl">
+                        <i class="fa-solid fa-check"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-serif-title text-2xl font-bold text-nude-900">Вы записаны!</h4>
+                        <p class="text-xs text-slate-500 mt-1">Мастер получила уведомление. Ждём вас в студии.</p>
+                    </div>
+                    <div id="successBox" class="bg-white p-4 rounded-2xl border border-nude-200 space-y-2 text-xs text-left"></div>
+                    <p class="text-[11px] text-slate-400">с. Новоишимка, Локомотивная 29 · +7 (708) 496 27 95</p>
+                </div>
+            </div>
+
+            <div class="p-4 bg-white border-t border-nude-200 flex items-center justify-between gap-3 flex-shrink-0">
+                <div id="footerCalcSummary" class="text-xs">
+                    <span class="block text-[10px] text-slate-400 uppercase">Итого (<span id="calcTime">1 ч</span>)</span>
+                    <span class="font-bold text-nude-900 text-sm" id="calcPrice">4 000 ₸</span>
+                </div>
+                <div class="flex gap-2">
+                    <button id="btnBack" onclick="prevStep()" class="hidden px-4 py-2.5 rounded-xl border border-nude-300 text-xs font-medium text-slate-600">Назад</button>
+                    <button id="btnNext" onclick="nextStep()" class="px-5 py-2.5 bg-nude-900 text-white rounded-xl text-xs font-medium shadow-md">Далее →</button>
+                    <button id="btnSubmit" onclick="submitBooking()" class="hidden px-5 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-medium shadow-md items-center gap-1.5 disabled:opacity-50">
+                        <i class="fa-solid fa-check"></i> <span>Подтвердить</span>
+                    </button>
+                    <button id="btnClose" onclick="closeBookingModal()" class="hidden px-5 py-2.5 bg-nude-900 text-white rounded-xl text-xs font-medium shadow-md">Закрыть</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- МОДАЛЬНОЕ ОКНО ПАРОЛЯ КАБИНЕТА -->
+    <div id="passwordModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center hidden p-4">
+        <div class="bg-white w-full max-w-xs rounded-2xl shadow-2xl p-5 space-y-4 text-center">
+            <div class="w-12 h-12 bg-amber-100 text-amber-700 rounded-full flex items-center justify-center mx-auto text-xl font-bold">
+                <i class="fa-solid fa-lock"></i>
+            </div>
+            <div>
+                <h3 class="font-bold text-base text-slate-900">Кабинет Мастера</h3>
+                <p class="text-xs text-slate-500 mt-1">Введите пароль доступа</p>
+            </div>
+            <div>
+                <input type="password" id="adminPasswordInput" placeholder="Введите пароль" autocomplete="current-password" class="w-full text-center text-sm p-3 rounded-xl border border-slate-300 bg-slate-50 focus:outline-none focus:border-amber-500 font-semibold tracking-widest">
+                <p id="passwordError" class="text-[11px] text-rose-500 mt-1 hidden">Неверный пароль!</p>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="closePasswordModal()" class="flex-1 py-2.5 bg-slate-100 text-slate-700 font-medium rounded-xl text-xs">Отмена</button>
+                <button id="btnLogin" onclick="checkAdminPassword()" class="flex-1 py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-medium rounded-xl text-xs shadow-md disabled:opacity-50">Войти</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== КАБИНЕТ МАСТЕРА ==================== -->
+    <div id="adminModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center hidden p-4">
+        <div class="bg-white w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+
+            <div class="p-4 bg-slate-900 text-white flex justify-between items-center flex-shrink-0">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-user-gear text-amber-300"></i>
+                    <h3 class="font-bold text-base">Кабинет Мастера</h3>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="logoutMaster()" class="px-3 py-1.5 rounded-full bg-white/10 text-[11px] hover:bg-white/20 transition">Выйти</button>
+                    <button onclick="closeAdminPanel()" aria-label="Закрыть" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex border-b border-slate-200 text-xs font-semibold flex-shrink-0">
+                <button id="atab-bookings" onclick="switchAdminTab('bookings')" class="flex-1 py-3 border-b-2 border-amber-500 text-slate-900">Записи <span id="bookingsCount" class="ml-1 px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px]">0</span></button>
+                <button id="atab-slots" onclick="switchAdminTab('slots')" class="flex-1 py-3 border-b-2 border-transparent text-slate-400">Окошки</button>
+            </div>
+
+            <div class="p-5 overflow-y-auto space-y-6 text-xs">
+                <!-- Вкладка: записи -->
+                <div id="apanel-bookings" class="space-y-2">
+                    <div id="adminBookingsList" class="space-y-2"></div>
+                </div>
+
+                <!-- Вкладка: окошки -->
+                <div id="apanel-slots" class="space-y-6 hidden">
+                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
+                        <h4 class="font-bold text-slate-800 uppercase tracking-wider">Добавить окошки</h4>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="col-span-2">
+                                <label class="block font-medium text-slate-700 mb-1">Дата</label>
+                                <input type="date" id="adminDateInput" class="w-full p-2.5 rounded-xl border border-slate-300">
+                            </div>
+                            <div>
+                                <label class="block font-medium text-slate-700 mb-1">Время начала</label>
+                                <input type="time" id="adminTimeInput" class="w-full p-2.5 rounded-xl border border-slate-300">
+                            </div>
+                            <div>
+                                <label class="block font-medium text-slate-700 mb-1">До (по желанию)</label>
+                                <input type="time" id="adminTimeToInput" class="w-full p-2.5 rounded-xl border border-slate-300">
+                            </div>
+                            <div class="col-span-2">
+                                <label class="block font-medium text-slate-700 mb-1">Шаг, если указано «До»</label>
+                                <select id="adminStepSelect" class="w-full p-2.5 rounded-xl border border-slate-300 bg-white">
+                                    <option value="30">каждые 30 минут</option>
+                                    <option value="60" selected>каждый час</option>
+                                    <option value="90">каждые 1,5 часа</option>
+                                    <option value="120">каждые 2 часа</option>
+                                </select>
+                            </div>
+                        </div>
+                        <p class="text-[11px] text-slate-500 leading-relaxed">Одно окошко: укажите только время начала. Несколько сразу: укажите «До», например с 10:00 до 18:00 — добавятся 10:00, 11:00 … 18:00.</p>
+                        <button onclick="addTimeSlots()" class="w-full py-2.5 bg-emerald-700 text-white font-medium rounded-xl flex items-center justify-center gap-1.5 shadow-md hover:bg-emerald-800 transition">
+                            <i class="fa-solid fa-plus"></i> Добавить
+                        </button>
+                    </div>
+
+                    <div class="space-y-2">
+                        <h4 class="font-bold text-slate-800 uppercase tracking-wider">Открытые окошки</h4>
+                        <div id="adminSlotsList" class="space-y-2"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        /* =====================================================================
+         *  НАСТРОЙКИ  (всё, что нужно менять, — в этом блоке)
+         * ===================================================================== */
+
+        // 1) FIREBASE. Пока apiKey пустой — сайт работает в ДЕМО-режиме
+        //    (данные только в этом браузере, другим людям не видны).
+        //    Как подключить: Firebase Console → Project settings → Your apps → Web app → вставить значения.
+        const FIREBASE_CONFIG = {
+            apiKey: "AIzaSyB7dT-noafur-W2p33U-LIlbxyuqohSE78",
+            authDomain: "naile-studio.firebaseapp.com",
+            projectId: "naile-studio",
+            storageBucket: "naile-studio.firebasestorage.app",
+            messagingSenderId: "870306715563",
+            appId: "1:870306715563:web:d69789316e074620bde4ee"
+        };
+
+        // 2) Вход мастера. В Firebase Console → Authentication → Users создайте пользователя
+        //    с ЭТОЙ почтой и своим паролем. Тот же email впишите в firestore.rules.
+        const MASTER_EMAIL = "stulgaarina63@gmail.com";
+        const DEMO_MASTER_PASSWORD = "1234";   // работает ТОЛЬКО в демо-режиме
+
+        // 3) Telegram-бот
+        const TELEGRAM = {
+            botToken: '9224902715:AAFL1sA4GRmu1MCngkfvkRRSTwAwclXAhPE',
+            chatId: '6268969786'
+        };
+
+        // 4) Донаращивание одного ногтя
+        const EXTRA_NAIL = { price: 500, minutes: 10, max: 10 };
+
+        // 5) Нельзя записаться на время, которое начнётся раньше чем через N минут
+        const LEAD_MIN = 30;
+
+        // 6) Услуги (цены и длительность меняются только здесь — сайт и форма записи подхватят сами)
+        const SERVICES = [
+            { id: 'comb_no_cover', cat: 'manicure', name: 'Комби Маникюр (без покрытия)', price: 4000, minutes: 60,
+              desc: 'Входит гигиеническая обработка ногтей и кутикулы, мое снятие включено.' },
+            { id: 'cover_short', cat: 'manicure', name: 'Маникюр + Покрытие (Короткие)', price: 7000, minutes: 90, hit: true,
+              desc: 'Входит обработка, сложная реставрация, ремонт, твердое укрепление, поднятие клюющих, однотон/легкий дизайн.' },
+            { id: 'cover_long', cat: 'manicure', name: 'Маникюр + Покрытие (Длинные)', price: 8000, minutes: 105,
+              desc: 'Входит обработка, укрепление гелем/акригелем, ремонт, форма, однотонное покрытие.' },
+            // fullSet: полный набор — донаращивание отдельных ногтей к нему не добавляется
+            { id: 'ext_1_2', cat: 'extensions', name: 'Наращивание (1-2 длина)', price: 8500, minutes: 120, fullSet: true,
+              desc: 'Полное моделирование ногтей на гелевые типсы/формы, легкий дизайн.' }
+        ];
+
+        /* =====================================================================
+         *  ВСПОМОГАТЕЛЬНОЕ
+         * ===================================================================== */
+        const $ = (id) => document.getElementById(id);
+        const pad = (n) => String(n).padStart(2, '0');
+        const toMin = (t) => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
+        const fromMin = (m) => `${pad(Math.floor(m / 60))}:${pad(m % 60)}`;
+        const localDateStr = (d = new Date()) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+        const parseDate = (s) => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+        const nowMin = () => { const n = new Date(); return n.getHours() * 60 + n.getMinutes(); };
+        const fmtMoney = (n) => `${Number(n).toLocaleString('ru-RU')} ₸`;
+        const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        const uid = () => (crypto.randomUUID ? crypto.randomUUID() : `b${Date.now()}${Math.random().toString(16).slice(2)}`);
+
+        function fmtDur(min) {
+            const h = Math.floor(min / 60), m = min % 60;
+            if (h === 0) return `${m} мин`;
+            if (m === 0) return h === 1 ? '1 час' : (h < 5 ? `${h} часа` : `${h} часов`);
+            return `${h} ч ${m} мин`;
+        }
+        const fmtNails = (n) => `${n} ${n === 1 ? 'ноготь' : (n < 5 ? 'ногтя' : 'ногтей')}`;
+        const fmtDateLong = (s) => parseDate(s).toLocaleDateString('ru-RU', { weekday: 'long', day: 'numeric', month: 'long' });
+
+        const overlaps = (busy, start, end) =>
+            (busy || []).some((b) => toMin(start) < toMin(b.end) && toMin(end) > toMin(b.start));
+        const conflictError = () => Object.assign(new Error('conflict'), { code: 'conflict' });
+
+        let toastTimer;
+        function toast(msg) {
+            $('toastText').textContent = msg;
+            const t = $('toast');
+            t.classList.remove('opacity-0');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => t.classList.add('opacity-0'), 3500);
+        }
+
+        function showBanner(text, kind) {
+            const b = $('dbBanner');
+            b.textContent = text;
+            b.className = `text-center text-[11px] py-1.5 px-3 font-medium ${kind === 'error' ? 'bg-rose-600 text-white' : 'bg-amber-200 text-amber-900'}`;
+        }
+
+        /* =====================================================================
+         *  ХРАНИЛИЩЕ №1: ДЕМО (localStorage, без интернета)
+         * ===================================================================== */
+        function createLocalStore() {
+            const KEY = 'naile_demo_db_v2';
+            const load = () => { try { return JSON.parse(localStorage.getItem(KEY)); } catch { return null; } };
+            const seed = () => {
+                const days = {};
+                for (let i = 1; i <= 3; i++) {
+                    const d = new Date(); d.setDate(d.getDate() + i);
+                    days[localDateStr(d)] = { slots: ['10:00', '12:00', '14:00', '16:00'], busy: [] };
+                }
+                return { days, bookings: {} };
+            };
+            let db = load() || seed();
+            let master = false;
+            const dayCbs = new Set(), bookCbs = new Set();
+
+            const emit = () => {
+                dayCbs.forEach((cb) => cb(JSON.parse(JSON.stringify(db.days))));
+                bookCbs.forEach((cb) => cb(Object.values(db.bookings)));
+            };
+            const save = () => { try { localStorage.setItem(KEY, JSON.stringify(db)); } catch { /* ok */ } emit(); };
+            window.addEventListener('storage', (e) => { if (e.key === KEY) { db = load() || db; emit(); } });
+
+            return {
+                mode: 'demo',
+                isMaster: () => master,
+                async loginMaster(pwd) { master = pwd === DEMO_MASTER_PASSWORD; return master; },
+                async logoutMaster() { master = false; },
+                onDays(cb) { dayCbs.add(cb); cb(JSON.parse(JSON.stringify(db.days))); return () => dayCbs.delete(cb); },
+                onBookings(cb) { bookCbs.add(cb); cb(Object.values(db.bookings)); return () => bookCbs.delete(cb); },
+                async addSlots(date, times) {
+                    const day = db.days[date] || (db.days[date] = { slots: [], busy: [] });
+                    let added = 0;
+                    times.forEach((t) => { if (!day.slots.includes(t)) { day.slots.push(t); added++; } });
+                    day.slots.sort();
+                    save();
+                    return added;
+                },
+                async removeSlot(date, time) {
+                    const day = db.days[date]; if (!day) return;
+                    day.slots = day.slots.filter((t) => t !== time);
+                    save();
+                },
+                async book(b) {
+                    db = load() || db; // свежие данные из других вкладок
+                    const day = db.days[b.date];
+                    if (!day || !day.slots.includes(b.start) || overlaps(day.busy, b.start, b.end)) throw conflictError();
+                    day.busy.push({ id: b.id, start: b.start, end: b.end });
+                    db.bookings[b.id] = { ...b };
+                    save();
+                },
+                async cancel(date, id) {
+                    const day = db.days[date];
+                    if (day) day.busy = day.busy.filter((x) => x.id !== id);
+                    delete db.bookings[id];
+                    save();
+                }
+            };
+        }
+
+        /* =====================================================================
+         *  ХРАНИЛИЩЕ №2: FIREBASE (общая база для всех устройств)
+         *  days/{YYYY-MM-DD}  → { slots: ["10:00",…], busy: [{id,start,end}] }   (публично, без личных данных)
+         *  bookings/{id}      → полная запись с именем и телефоном               (читает только мастер)
+         * ===================================================================== */
+        async function createFirebaseStore() {
+            const V = '11.6.1';
+            const [appMod, authMod, fs] = await Promise.all([
+                import(`https://www.gstatic.com/firebasejs/${V}/firebase-app.js`),
+                import(`https://www.gstatic.com/firebasejs/${V}/firebase-auth.js`),
+                import(`https://www.gstatic.com/firebasejs/${V}/firebase-firestore.js`)
+            ]);
+            const app = appMod.initializeApp(FIREBASE_CONFIG);
+            const auth = authMod.getAuth(app);
+            const db = fs.getFirestore(app);
+
+            const isMaster = () => !!(auth.currentUser && auth.currentUser.email === MASTER_EMAIL);
+            const signInGuest = async () => { try { await authMod.signInAnonymously(auth); } catch (e) { console.warn('Anonymous auth:', e); } };
+            // дожидаемся восстановления сессии (мастер остаётся залогиненным между визитами)
+            await auth.authStateReady();
+            if (!auth.currentUser) await signInGuest();
+
+            const dayRef = (date) => fs.doc(db, 'days', date);
+
+            return {
+                mode: 'firebase',
+                isMaster,
+                async loginMaster(pwd) {
+                    try { await authMod.signInWithEmailAndPassword(auth, MASTER_EMAIL, pwd); return true; }
+                    catch (e) { console.warn('Master login:', e.code); return false; }
+                },
+                async logoutMaster() { await authMod.signOut(auth); await signInGuest(); },
+                onDays(cb) {
+                    const q = fs.query(fs.collection(db, 'days'), fs.where(fs.documentId(), '>=', localDateStr()));
+                    return fs.onSnapshot(q, (snap) => {
+                        const out = {};
+                        snap.forEach((d) => { const v = d.data(); out[d.id] = { slots: v.slots || [], busy: v.busy || [] }; });
+                        cb(out);
+                    }, (err) => { console.error('days sync:', err); showBanner('Нет связи с базой записей. Обновите страницу.', 'error'); });
+                },
+                onBookings(cb) {
+                    const q = fs.query(fs.collection(db, 'bookings'), fs.where('date', '>=', localDateStr()));
+                    return fs.onSnapshot(q, (snap) => cb(snap.docs.map((d) => d.data())),
+                        (err) => console.error('bookings sync:', err));
+                },
+                addSlots(date, times) {
+                    return fs.runTransaction(db, async (tx) => {
+                        const snap = await tx.get(dayRef(date));
+                        const cur = snap.exists() ? snap.data() : {};
+                        const slots = cur.slots || [];
+                        let added = 0;
+                        times.forEach((t) => { if (!slots.includes(t)) { slots.push(t); added++; } });
+                        slots.sort();
+                        tx.set(dayRef(date), { slots, busy: cur.busy || [] });
+                        return added;
+                    });
+                },
+                removeSlot(date, time) {
+                    return fs.runTransaction(db, async (tx) => {
+                        const snap = await tx.get(dayRef(date));
+                        if (!snap.exists()) return;
+                        const cur = snap.data();
+                        tx.set(dayRef(date), { slots: (cur.slots || []).filter((t) => t !== time), busy: cur.busy || [] });
+                    });
+                },
+                // ГЛАВНОЕ: бронь делается ТРАНЗАКЦИЕЙ — две клиентки одновременно не займут одно время
+                book(b) {
+                    return fs.runTransaction(db, async (tx) => {
+                        const snap = await tx.get(dayRef(b.date));
+                        if (!snap.exists()) throw conflictError();
+                        const cur = snap.data();
+                        const slots = cur.slots || [], busy = cur.busy || [];
+                        if (!slots.includes(b.start) || overlaps(busy, b.start, b.end)) throw conflictError();
+                        tx.update(dayRef(b.date), { busy: [...busy, { id: b.id, start: b.start, end: b.end }] });
+                        tx.set(fs.doc(db, 'bookings', b.id), { ...b });
+                    });
+                },
+                cancel(date, id) {
+                    return fs.runTransaction(db, async (tx) => {
+                        const snap = await tx.get(dayRef(date));
+                        if (snap.exists()) {
+                            const cur = snap.data();
+                            tx.update(dayRef(date), { busy: (cur.busy || []).filter((x) => x.id !== id) });
+                        }
+                        tx.delete(fs.doc(db, 'bookings', id));
+                    });
+                }
+            };
+        }
+
+        /* =====================================================================
+         *  СОСТОЯНИЕ САЙТА
+         * ===================================================================== */
+        let store = null;
+        let daysData = {};          // { '2026-11-01': { slots: [...], busy: [{id,start,end}] } }
+        let bookingsData = [];      // только для мастера
+        let unsubBookings = null;
+        let submitting = false;
+
+        const state = { step: 1, serviceId: SERVICES[0].id, extraNails: 0, date: '', time: '' };
+
+        const getService = () => SERVICES.find((s) => s.id === state.serviceId) || SERVICES[0];
+        function getOrder() {
+            const service = getService();
+            const nails = service.fullSet ? 0 : state.extraNails;
+            return {
+                service, nails,
+                price: service.price + nails * EXTRA_NAIL.price,
+                minutes: service.minutes + nails * EXTRA_NAIL.minutes
+            };
+        }
+
+        /** Статус окошка для процедуры длительностью `minutes`:
+         *  free — можно; busy — время начала уже занято; nofit — процедура не влезает (упрётся в чужую запись); past — уже прошло */
+        function slotStatus(date, time, minutes) {
+            const start = toMin(time), end = start + minutes;
+            if (date < localDateStr()) return 'past';
+            if (date === localDateStr() && start < nowMin() + LEAD_MIN) return 'past';
+            for (const b of (daysData[date]?.busy || [])) {
+                const bs = toMin(b.start), be = toMin(b.end);
+                if (start < be && end > bs) return (start >= bs) ? 'busy' : 'nofit';
+            }
+            return 'free';
+        }
+        const activeDates = () => {
+            const today = localDateStr();
+            return Object.keys(daysData).filter((d) => d >= today && (daysData[d].slots || []).length > 0).sort();
+        };
+        const freeSlots = (date, minutes) => (daysData[date]?.slots || []).filter((t) => slotStatus(date, t, minutes) === 'free');
+
+        /* =====================================================================
+         *  ПРАЙС-ЛИСТ И ШАГ 1
+         * ===================================================================== */
+        function renderServices() {
+            const extraCard = `
+                <div class="rounded-2xl p-4 border border-dashed border-nude-300 bg-nude-100/50 flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-full bg-nude-200 text-nude-800 flex items-center justify-center flex-shrink-0"><i class="fa-solid fa-plus text-xs"></i></div>
+                    <div class="flex-1">
+                        <h4 class="font-medium text-sm text-nude-900">Донаращивание ногтя</h4>
+                        <p class="text-xs text-slate-500 font-light">Добавляется при записи к услугам маникюра с покрытием.</p>
+                    </div>
+                    <span class="text-sm font-semibold text-nude-800 whitespace-nowrap">${fmtMoney(EXTRA_NAIL.price)} <span class="text-[10px] font-light text-slate-500">/ноготь</span></span>
+                </div>`;
+            ['manicure', 'extensions'].forEach((cat) => {
+                const cards = SERVICES.filter((s) => s.cat === cat).map((s) => `
+                    <div class="glass-card rounded-2xl p-4 transition-all hover:border-nude-400 hover:shadow-md ${s.hit ? 'border-l-4 border-l-nude-500' : ''} flex justify-between items-center gap-3">
+                        <div class="space-y-1 flex-1">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <h4 class="font-medium text-sm text-nude-900">${esc(s.name)}</h4>
+                                <span class="text-[10px] px-2 py-0.5 bg-nude-100 text-nude-700 rounded-full font-medium">${fmtDur(s.minutes)}</span>
+                                ${s.hit ? '<span class="text-[9px] px-2 py-0.5 bg-blush-100 text-blush-800 rounded-full font-medium">Хит продаж</span>' : ''}
+                            </div>
+                            <p class="text-xs text-slate-500 font-light">${esc(s.desc)}</p>
+                            <span class="text-sm font-semibold text-nude-800 block pt-1">${fmtMoney(s.price)}</span>
+                        </div>
+                        <button onclick="selectServiceAndBook('${s.id}')" class="px-3.5 py-2 ${s.hit ? 'bg-nude-900 text-white hover:bg-nude-800 shadow-sm' : 'bg-nude-200 hover:bg-nude-900 hover:text-white text-nude-900'} rounded-xl text-xs font-medium transition active:scale-95 flex-shrink-0">
+                            ${s.hit ? 'Записаться' : 'Выбрать'}
+                        </button>
+                    </div>`).join('');
+                $('category-' + cat).innerHTML = cards + extraCard;
+            });
+            renderServiceOptions();
+        }
+
+        function renderServiceOptions() {
+            $('serviceOptions').innerHTML = SERVICES.map((s) => {
+                const on = s.id === state.serviceId;
+                return `
+                <label class="flex items-start gap-3 p-3 bg-white rounded-xl border cursor-pointer transition ${on ? 'border-nude-500 ring-1 ring-nude-500' : 'border-nude-200'}">
+                    <input type="radio" name="main_service" value="${s.id}" class="mt-1 accent-nude-800" ${on ? 'checked' : ''} onchange="setService('${s.id}')">
+                    <div class="flex-1">
+                        <div class="flex justify-between gap-2 font-medium text-xs text-nude-900">
+                            <span>${esc(s.name)}</span>
+                            <span class="whitespace-nowrap">${fmtMoney(s.price)}</span>
+                        </div>
+                        <span class="text-[10px] text-slate-400">${fmtDur(s.minutes)}</span>
+                    </div>
+                </label>`;
+            }).join('');
+        }
+
+        function updateExtraBlock() {
+            const service = getService();
+            $('extraBlock').classList.toggle('hidden', !!service.fullSet);
+            $('extraCount').textContent = state.extraNails;
+            $('extraMinus').disabled = state.extraNails <= 0;
+            $('extraPlus').disabled = state.extraNails >= EXTRA_NAIL.max;
+            $('extraHint').textContent = `+${fmtMoney(EXTRA_NAIL.price)} и +${EXTRA_NAIL.minutes} мин за каждый ноготь`;
+        }
+
+        function updateCalc() {
+            const o = getOrder();
+            $('calcPrice').textContent = fmtMoney(o.price);
+            $('calcTime').textContent = fmtDur(o.minutes);
+        }
+
+        window.setService = function (id) {
+            state.serviceId = id;
+            if (getService().fullSet) state.extraNails = 0;
+            renderServiceOptions(); updateExtraBlock(); updateCalc();
+        };
+        window.changeExtra = function (delta) {
+            state.extraNails = Math.max(0, Math.min(EXTRA_NAIL.max, state.extraNails + delta));
+            updateExtraBlock(); updateCalc();
+        };
+
+        window.switchTab = function (category) {
+            const on = 'flex-1 py-2 text-xs font-medium rounded-lg transition-all bg-white text-nude-900 shadow-sm';
+            const off = 'flex-1 py-2 text-xs font-medium rounded-lg transition-all text-slate-500 hover:text-nude-900';
+            $('tab-manicure').className = category === 'manicure' ? on : off;
+            $('tab-extensions').className = category === 'extensions' ? on : off;
+            $('category-manicure').classList.toggle('hidden', category !== 'manicure');
+            $('category-extensions').classList.toggle('hidden', category !== 'extensions');
+        };
+
+        window.selectServiceAndBook = function (id) {
+            setService(id);
+            openBookingModal();
+        };
+
+        /* =====================================================================
+         *  МОДАЛКА ЗАПИСИ
+         * ===================================================================== */
+        const anyModalOpen = () => ['bookingModal', 'passwordModal', 'adminModal'].some((id) => !$(id).classList.contains('hidden'));
+        const syncScrollLock = () => { document.body.style.overflow = anyModalOpen() ? 'hidden' : ''; };
+
+        window.openBookingModal = function () {
+            if (!store) { toast('Онлайн-запись временно недоступна. Напишите нам в WhatsApp.'); return; }
+            const modal = $('bookingModal'), card = $('bookingModalCard');
+            modal.classList.remove('hidden');
+            setTimeout(() => { modal.classList.remove('opacity-0'); card.classList.remove('translate-y-full'); }, 10);
+            state.step = 1; state.time = '';
+            updateExtraBlock(); updateCalc(); updateStepView(); syncScrollLock();
+        };
+
+        window.closeBookingModal = function () {
+            const modal = $('bookingModal'), card = $('bookingModalCard');
+            card.classList.add('translate-y-full');
+            modal.classList.add('opacity-0');
+            setTimeout(() => { modal.classList.add('hidden'); syncScrollLock(); }, 300);
+        };
+
+        function updateStepView() {
+            const s = state.step;
+            [1, 2, 3, 4].forEach((n) => $('step-' + n).classList.toggle('hidden', s !== n));
+            $('btnBack').classList.toggle('hidden', s === 1 || s === 4);
+            $('btnNext').classList.toggle('hidden', s >= 3);
+            $('btnSubmit').classList.toggle('hidden', s !== 3);
+            $('btnSubmit').classList.toggle('flex', s === 3);
+            $('btnClose').classList.toggle('hidden', s !== 4);
+            $('footerCalcSummary').classList.toggle('hidden', s === 4);
+            $('stepIndicator').textContent = ['', 'Шаг 1 из 3: Выбор услуги', 'Шаг 2 из 3: Дата и время', 'Шаг 3 из 3: Ваши данные', 'Запись подтверждена'][s];
+        }
+
+        window.nextStep = function () {
+            if (state.step === 1) {
+                const { minutes } = getOrder();
+                if (!state.date || !freeSlots(state.date, minutes).length) {
+                    state.date = activeDates().find((d) => freeSlots(d, minutes).length) || activeDates()[0] || '';
+                }
+                state.time = '';
+                state.step = 2;
+                renderDates();
+            } else if (state.step === 2) {
+                if (!state.date || !state.time) { toast('Выберите дату и время.'); return; }
+                if (slotStatus(state.date, state.time, getOrder().minutes) !== 'free') { toast('Это время уже занято. Выберите другое.'); renderSlots(); return; }
+                state.step = 3;
+                updateSummary();
+            }
+            updateStepView();
+        };
+
+        window.prevStep = function () { if (state.step > 1 && state.step < 4) { state.step--; updateStepView(); if (state.step === 2) renderDates(); } };
+
+        function renderDates() {
+            const box = $('dateList');
+            const dates = activeDates();
+            const o = getOrder();
+            $('durationNote').innerHTML = `<i class="fa-regular fa-clock mr-1"></i> «${esc(o.service.name)}»${o.nails ? ` + ${fmtNails(o.nails)}` : ''} займёт <strong>${fmtDur(o.minutes)}</strong>. Время окончания покажем при выборе.`;
+            if (!dates.length) {
+                box.innerHTML = '<p class="text-xs text-slate-400">Нет доступных дат</p>';
+                state.date = ''; state.time = '';
+                renderSlots();
+                return;
+            }
+            if (!dates.includes(state.date)) state.date = dates.find((d) => freeSlots(d, o.minutes).length) || dates[0];
+            box.innerHTML = '';
+            dates.forEach((dateStr) => {
+                const dt = parseDate(dateStr);
+                const hasFree = freeSlots(dateStr, o.minutes).length > 0;
+                const sel = dateStr === state.date;
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = `p-2.5 min-w-[65px] rounded-2xl flex flex-col items-center justify-center text-xs transition border ${sel ? 'bg-nude-900 text-white border-nude-900' : 'bg-white text-slate-700 border-nude-200'} ${!hasFree && !sel ? 'opacity-50' : ''}`;
+                btn.innerHTML = `<span class="text-[10px] uppercase font-light">${dt.toLocaleDateString('ru-RU', { weekday: 'short' })}</span>
+                    <span class="text-base font-bold my-0.5">${dt.getDate()}</span>
+                    <span class="text-[9px] font-light">${hasFree ? dt.toLocaleDateString('ru-RU', { month: 'short' }).replace('.', '') : 'занято'}</span>`;
+                btn.onclick = () => { state.date = dateStr; state.time = ''; renderDates(); };
+                box.appendChild(btn);
+            });
+            renderSlots();
+        }
+
+        function renderSlots() {
+            const box = $('timeSlots');
+            const o = getOrder();
+            box.innerHTML = '';
+            const slots = (daysData[state.date]?.slots || []).slice().sort();
+
+            if (state.time && slotStatus(state.date, state.time, o.minutes) !== 'free') {
+                state.time = '';
+                toast('Выбранное окошко стало недоступно. Выберите другое.');
+            }
+            $('noSlotsMsg').classList.toggle('hidden', slots.length > 0);
+            if (!slots.length) { $('slotsLegend').classList.add('hidden'); return; }
+
+            let hasTaken = false;
+            slots.forEach((time) => {
+                const st = slotStatus(state.date, time, o.minutes);
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                if (st === 'free') {
+                    const sel = time === state.time;
+                    btn.className = `py-2 px-2 rounded-xl text-xs font-semibold border transition leading-tight ${sel ? 'bg-nude-800 text-white border-nude-800' : 'bg-white text-nude-900 border-nude-200 hover:border-nude-400'}`;
+                    btn.innerHTML = `<span class="block">${time}</span><span class="block text-[9px] font-light ${sel ? 'text-nude-100' : 'text-slate-400'}">до ${fromMin(toMin(time) + o.minutes)}</span>`;
+                    btn.onclick = () => { state.time = time; renderSlots(); };
+                } else {
+                    hasTaken = true;
+                    btn.className = 'slot-taken py-2.5 px-2 rounded-xl text-xs font-semibold border border-nude-200';
+                    btn.disabled = true;
+                    btn.title = st === 'nofit' ? 'Не хватает времени на выбранную процедуру' : (st === 'past' ? 'Время прошло' : 'Занято');
+                    btn.textContent = time;
+                }
+                box.appendChild(btn);
+            });
+            $('slotsLegend').classList.toggle('hidden', !hasTaken);
+        }
+
+        function updateSummary() {
+            const o = getOrder();
+            const end = fromMin(toMin(state.time) + o.minutes);
+            $('summaryService').textContent = o.service.name;
+            $('summaryExtraRow').classList.toggle('hidden', !o.nails);
+            $('summaryExtra').textContent = `${fmtNails(o.nails)} · +${fmtMoney(o.nails * EXTRA_NAIL.price)}`;
+            $('summaryDate').textContent = fmtDateLong(state.date);
+            $('summaryTime').textContent = `${state.time} – ${end} (${fmtDur(o.minutes)})`;
+            $('summaryTotal').textContent = fmtMoney(o.price);
+        }
+
+        /* =====================================================================
+         *  ОФОРМЛЕНИЕ ЗАПИСИ + TELEGRAM
+         * ===================================================================== */
+        async function sendTelegram(b) {
+            if (!TELEGRAM.botToken || !TELEGRAM.chatId) return;
+            const lines = [
+                '💅 Новая запись!', '',
+                `👤 Клиент: ${b.name}`,
+                `📞 Телефон: ${b.phone}`,
+                `💅 Услуга: ${b.service}`
+            ];
+            if (b.extraNails) lines.push(`➕ Донаращивание: ${fmtNails(b.extraNails)} (+${fmtMoney(b.extraNails * EXTRA_NAIL.price)})`);
+            lines.push(
+                `📅 Дата: ${fmtDateLong(b.date)}`,
+                `⏰ Время: ${b.start} – ${b.end} (${fmtDur(b.minutes)})`,
+                `💰 Сумма: ${fmtMoney(b.price)}`
+            );
+            try {
+                const res = await fetch(`https://api.telegram.org/bot${TELEGRAM.botToken}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ chat_id: TELEGRAM.chatId, text: lines.join('\n') })
+                });
+                if (!res.ok) console.error('Telegram error', res.status);
+            } catch (e) { console.error('Telegram send error:', e); }
+        }
+
+        window.submitBooking = async function () {
+            if (submitting) return;
+            const name = $('clientName').value.trim();
+            const phone = $('clientPhone').value.trim();
+            if (name.length < 2) { toast('Введите ваше имя.'); return; }
+            if (phone.replace(/\D/g, '').length < 10) { toast('Введите корректный номер телефона.'); return; }
+
+            const o = getOrder();
+            const booking = {
+                id: uid(), date: state.date, start: state.time, end: fromMin(toMin(state.time) + o.minutes),
+                minutes: o.minutes, name, phone,
+                serviceId: o.service.id, service: o.service.name, extraNails: o.nails, price: o.price,
+                createdAt: Date.now()
+            };
+
+            submitting = true;
+            const btn = $('btnSubmit');
+            btn.disabled = true; btn.querySelector('span').textContent = 'Записываем…';
+            try {
+                await store.book(booking);
+            } catch (e) {
+                submitting = false; btn.disabled = false; btn.querySelector('span').textContent = 'Подтвердить';
+                if (e && e.code === 'conflict') {
+                    toast('Упс! Это время только что заняли. Выберите другое окошко.');
+                    state.time = ''; state.step = 2; renderDates(); updateStepView();
+                } else {
+                    console.error('Booking error:', e);
+                    toast('Не удалось оформить запись. Попробуйте ещё раз или напишите нам в WhatsApp.');
+                }
+                return;
+            }
+            await sendTelegram(booking);      // запись уже в базе; сбой Telegram её не отменяет
+
+            submitting = false; btn.disabled = false; btn.querySelector('span').textContent = 'Подтвердить';
+            $('successBox').innerHTML = `
+                <p class="flex justify-between gap-3"><span>Услуга:</span> <strong class="text-right">${esc(booking.service)}</strong></p>
+                ${booking.extraNails ? `<p class="flex justify-between gap-3"><span>Донаращивание:</span> <strong>${fmtNails(booking.extraNails)}</strong></p>` : ''}
+                <p class="flex justify-between gap-3"><span>Дата:</span> <strong>${esc(fmtDateLong(booking.date))}</strong></p>
+                <p class="flex justify-between gap-3"><span>Время:</span> <strong>${booking.start} – ${booking.end}</strong></p>
+                <p class="flex justify-between gap-3"><span>Длительность:</span> <strong>${fmtDur(booking.minutes)}</strong></p>
+                <div class="border-t pt-2 flex justify-between font-bold text-sm text-nude-900"><span>К оплате:</span><span>${fmtMoney(booking.price)}</span></div>`;
+            $('clientName').value = ''; $('clientPhone').value = '';
+            state.extraNails = 0; state.time = ''; state.step = 4;
+            updateExtraBlock(); updateStepView();
+        };
+
+        /* =====================================================================
+         *  КАБИНЕТ МАСТЕРА
+         * ===================================================================== */
+        window.openAdminPasswordModal = function () {
+            if (!store) { toast('База ещё не подключена.'); return; }
+            if (store.isMaster()) { openAdminPanel(); return; }
+            $('passwordModal').classList.remove('hidden');
+            $('adminPasswordInput').value = '';
+            $('passwordError').classList.add('hidden');
+            $('adminPasswordInput').focus();
+            syncScrollLock();
+        };
+        window.closePasswordModal = function () { $('passwordModal').classList.add('hidden'); syncScrollLock(); };
+
+        window.checkAdminPassword = async function () {
+            const pwd = $('adminPasswordInput').value;
+            const btn = $('btnLogin');
+            btn.disabled = true;
+            const ok = await store.loginMaster(pwd);
+            btn.disabled = false;
+            if (ok) { closePasswordModal(); openAdminPanel(); }
+            else $('passwordError').classList.remove('hidden');
+        };
+
+        function openAdminPanel() {
+            $('adminModal').classList.remove('hidden');
+            if (!$('adminDateInput').value) $('adminDateInput').value = localDateStr();
+            if (unsubBookings) unsubBookings();
+            unsubBookings = store.onBookings((list) => { bookingsData = list; renderAdminBookings(); });
+            renderAdminSlots(); renderAdminBookings();
+            if (store.mode === 'demo') toast('Демо-режим: данные хранятся только в этом браузере.');
+            syncScrollLock();
+        }
+
+        window.closeAdminPanel = function () {
+            $('adminModal').classList.add('hidden');
+            if (unsubBookings) { unsubBookings(); unsubBookings = null; }
+            syncScrollLock();
+        };
+
+        window.logoutMaster = async function () {
+            await store.logoutMaster();
+            closeAdminPanel();
+        };
+
+        window.switchAdminTab = function (tab) {
+            const on = 'flex-1 py-3 border-b-2 border-amber-500 text-slate-900';
+            const off = 'flex-1 py-3 border-b-2 border-transparent text-slate-400';
+            $('atab-bookings').className = tab === 'bookings' ? on : off;
+            $('atab-slots').className = tab === 'slots' ? on : off;
+            $('apanel-bookings').classList.toggle('hidden', tab !== 'bookings');
+            $('apanel-slots').classList.toggle('hidden', tab !== 'slots');
+        };
+
+        window.addTimeSlots = async function () {
+            const date = $('adminDateInput').value;
+            const from = $('adminTimeInput').value;
+            const to = $('adminTimeToInput').value;
+            const step = parseInt($('adminStepSelect').value, 10);
+            if (!date || !from) { toast('Выберите дату и время начала.'); return; }
+            if (date < localDateStr()) { toast('Нельзя добавить окошко на прошедшую дату.'); return; }
+            const times = [from];
+            if (to) {
+                if (toMin(to) < toMin(from)) { toast('Время «До» должно быть позже времени начала.'); return; }
+                for (let m = toMin(from) + step; m <= toMin(to); m += step) times.push(fromMin(m));
+            }
+            try {
+                const added = await store.addSlots(date, times);
+                toast(added ? `Добавлено окошек: ${added}` : 'Такие окошки уже есть.');
+            } catch (e) { console.error(e); toast('Не удалось сохранить. Проверьте вход и соединение.'); }
+        };
+
+        function renderAdminSlots() {
+            const box = $('adminSlotsList');
+            const today = localDateStr();
+            const dates = Object.keys(daysData).filter((d) => d >= today && (daysData[d].slots || []).length).sort();
+            if (!dates.length) { box.innerHTML = '<p class="text-slate-400 italic">Свободных окошек нет.</p>'; return; }
+            box.innerHTML = dates.map((date) => {
+                const day = daysData[date];
+                const chips = day.slots.slice().sort().map((t) => {
+                    const taken = overlaps(day.busy, t, fromMin(toMin(t) + 1));
+                    return taken
+                        ? `<span class="inline-flex items-center gap-1 bg-slate-100 border border-slate-200 px-2 py-1 rounded-lg text-slate-400 line-through" title="Занято клиентом"><i class="fa-solid fa-lock text-[9px]"></i>${t}</span>`
+                        : `<span class="inline-flex items-center gap-1.5 bg-slate-100 border border-slate-300 px-2 py-1 rounded-lg font-medium">${t}
+                            <button data-del-slot="${date}|${t}" aria-label="Удалить ${t}" class="text-rose-500 font-bold ml-1">✕</button></span>`;
+                }).join(' ');
+                return `<div class="p-3 bg-white rounded-xl border border-slate-200 space-y-2 shadow-sm">
+                    <div class="font-bold text-slate-900 border-b pb-1">${esc(fmtDateLong(date))}</div>
+                    <div class="flex flex-wrap gap-1.5">${chips}</div></div>`;
+            }).join('');
+        }
+        $('adminSlotsList').addEventListener('click', async (e) => {
+            const b = e.target.closest('[data-del-slot]'); if (!b) return;
+            const [date, time] = b.dataset.delSlot.split('|');
+            try { await store.removeSlot(date, time); } catch (err) { console.error(err); toast('Не удалось удалить окошко.'); }
+        });
+
+        function renderAdminBookings() {
+            const box = $('adminBookingsList');
+            const today = localDateStr();
+            const list = bookingsData.filter((b) => b.date >= today)
+                .sort((a, b) => (a.date + a.start).localeCompare(b.date + b.start));
+            $('bookingsCount').textContent = list.length;
+            if (!list.length) { box.innerHTML = '<p class="text-slate-400 italic">Предстоящих записей нет.</p>'; return; }
+            let lastDate = '';
+            box.innerHTML = list.map((b) => {
+                const head = b.date !== lastDate ? `<div class="font-bold text-slate-900 pt-2">${esc(fmtDateLong(b.date))}</div>` : '';
+                lastDate = b.date;
+                const tel = esc(b.phone.replace(/[^\d+]/g, ''));
+                return `${head}
+                <div class="p-3 bg-white rounded-xl border border-slate-200 shadow-sm space-y-1">
+                    <div class="flex justify-between items-center gap-2">
+                        <span class="text-sm font-bold text-slate-900">${esc(b.start)} – ${esc(b.end)}</span>
+                        <span class="font-semibold text-emerald-700">${fmtMoney(b.price)}</span>
+                    </div>
+                    <div class="text-slate-700">${esc(b.service)}${b.extraNails ? ` <span class="text-amber-700">+ ${fmtNails(b.extraNails)}</span>` : ''} · ${fmtDur(b.minutes)}</div>
+                    <div class="flex justify-between items-center gap-2 pt-1">
+                        <span>${esc(b.name)} · <a href="tel:${tel}" class="text-sky-700 underline">${esc(b.phone)}</a></span>
+                        <button data-cancel="${esc(b.date)}|${esc(b.id)}" class="px-2.5 py-1 rounded-lg bg-rose-50 text-rose-600 font-medium hover:bg-rose-100">Отменить</button>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+        $('adminBookingsList').addEventListener('click', async (e) => {
+            const b = e.target.closest('[data-cancel]'); if (!b) return;
+            if (!confirm('Отменить эту запись? Время снова станет свободным для клиентов.')) return;
+            const [date, id] = b.dataset.cancel.split('|');
+            try { await store.cancel(date, id); toast('Запись отменена, время освобождено.'); }
+            catch (err) { console.error(err); toast('Не удалось отменить запись.'); }
+        });
+
+        /* =====================================================================
+         *  ЗАПУСК
+         * ===================================================================== */
+        function onDaysChanged() {
+            if (!$('bookingModal').classList.contains('hidden')) {
+                if (state.step === 2) renderDates();
+                if (state.step === 3 && slotStatus(state.date, state.time, getOrder().minutes) !== 'free') {
+                    toast('Это время только что заняли. Выберите другое окошко.');
+                    state.time = ''; state.step = 2; renderDates(); updateStepView();
+                }
+            }
+            renderAdminSlots();
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !$('passwordModal').classList.contains('hidden')) checkAdminPassword();
+            if (e.key === 'Escape') { closePasswordModal(); if (!$('bookingModal').classList.contains('hidden')) closeBookingModal(); }
+        });
+
+        (async function main() {
+            renderServices();
+            updateExtraBlock();
+            updateCalc();
+            try {
+                if (FIREBASE_CONFIG.apiKey) {
+                    store = await createFirebaseStore();
+                } else {
+                    store = createLocalStore();
+                    showBanner('ДЕМО-РЕЖИМ: записи сохраняются только в этом браузере. Подключите Firebase, чтобы записи видели все.', 'warn');
+                }
+                store.onDays((days) => { daysData = days; onDaysChanged(); });
+            } catch (e) {
+                console.error('Store init failed:', e);
+                store = null;
+                showBanner('Онлайн-запись временно недоступна. Запишитесь через WhatsApp.', 'error');
+            }
+        })();
+    </script>
+</body>
+</html>
